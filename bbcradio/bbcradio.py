@@ -26,6 +26,10 @@ def get_htmlelement(url):
     return element
 
 
+class InvalidStationError(Exception):
+    pass
+
+
 class Stations:
     """Represents stations that have available schedules.
 
@@ -49,7 +53,9 @@ class Stations:
     def select(self, name):
         """ Returns a Station with the given name, if available, or None. """
         url = self.urls.get(name)
-        return None if url is None else Station(name, url)
+        if url is None:
+            raise InvalidStationError(name)
+        return Station(name, url)
 
     @staticmethod
     def _extract(element):
