@@ -80,3 +80,20 @@ class TestStations(unittest.TestCase):
             ]
         )
         self.assertEqual(expected_urls, self.urls)
+
+    def test_correct_select(self):
+        stations = bbcradio.Stations(self.urls)
+        station = stations.select("BBC Radio 1")
+        self.assertEqual(
+            bbcradio.Station("BBC Radio 1", "/schedules/p00fzl86"), station
+        )
+
+    def test_incorrect_select(self):
+        stations = bbcradio.Stations(self.urls)
+        self.assertRaises(
+            bbcradio.InvalidStationError,
+            stations.select,
+            "BBC Radio Not Present",
+        )
+
+
