@@ -34,14 +34,16 @@ class Stations:
     _urls: dict of station name to URL
     """
 
+    _stations_url = "https://www.bbc.co.uk/sounds/schedules"
+
     def __init__(self, urls=None):
         self._urls = urls
 
     @property
     def urls(self):
         if self._urls is None:
-            element = get_htmlelement("https://www.bbc.co.uk/sounds/schedules")
-            self._urls = self._retrieve(element)
+            element = get_htmlelement(self._stations_url)
+            self._urls = self._extract(element)
         return self._urls.copy()
 
     def select(self, name):
