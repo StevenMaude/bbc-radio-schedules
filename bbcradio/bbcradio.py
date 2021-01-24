@@ -84,6 +84,9 @@ class Stations:
     def __repr__(self):
         return f"Stations(urls={repr(self._urls)})"
 
+    def __eq__(self, other):
+        return self._urls == other._urls
+
 
 class Station:
     def __init__(self, name, url):
