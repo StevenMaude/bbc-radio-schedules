@@ -190,6 +190,33 @@ class Schedule:
         )
 
 
+class Programme:
+    def __init__(self, **kwargs):
+        self._info = OrderedDict(
+            [
+                ("start_date", None),
+                ("series_name", None),
+                ("name", None),
+                ("description", None),
+                ("identifier", None),
+                ("url", None),
+            ],
+        )
+
+        for k in self._info:
+            kwargs_value = kwargs.get(k)
+            if kwargs_value is not None:
+                self._info[k] = kwargs_value
+
+    @property
+    def info(self):
+        return self._info.copy()
+
+    def __repr__(self):
+        return f"Programme({repr(dict(self._info))})"
+
+    def __eq__(self, other):
+        return self._info == other._info
 
 
 def main():
