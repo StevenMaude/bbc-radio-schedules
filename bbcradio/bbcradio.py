@@ -3,6 +3,9 @@
 """
 bbcradio.py: Unofficial API client for the BBC Radio schedules.
 """
+import copy
+import datetime
+import json
 import logging
 from collections import OrderedDict
 
@@ -109,7 +112,84 @@ class Station:
 
 
 class Schedule:
-    pass
+    def __init__(self, station, date):
+        self._programmes = None
+        self._station = station
+
+        # Validate that this is a valid YYYY-MM-DD string.
+        # Explicitly require a date, even though the station URL without a date
+        # gives you the current day.
+        datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        # This date corresponds to the schedule date and may contain some
+        # programmes outside of that date.
+        self._date = date
+
+    @property
+    def programmes(self):
+        if self._programmes is None:
+            element = get_htmlelement(self._construct_url())
+            self._programmes = self._extract(element)
+        return copy.deepcopy(self._programmes)
+
+    @property
+    def station(self):
+        return self._station
+
+    @property
+    def date(self):
+        return self._date
+
+    def _construct_url(self):
+        return self._station.url + "/" + self._date.replace("-", "/")
+
+    @staticmethod
+    def _extract(element):
+        schema_xpath = '//script[@type="application/ld+json"]/text()'
+        schemas_text = element.xpath(schema_xpath)
+
+        for schema_text in schemas_text:
+            schedule_details = json.loads(schema_text)
+            if schedule_details.get("@graph") is not None:
+                break
+            else:
+                schedule_details = None
+
+        assert schedule_details is not None
+
+        programmes = []
+
+        for programme_details in schedule_details["@graph"]:
+            d = {}
+
+            publication = programme_details.get("publication")
+            if publication is not None:
+                d["start_date"] = publication.get("startDate")
+
+            series_details = programme_details.get("partOfSeries")
+            if series_details is not None:
+                d["series_name"] = series_details.get("name")
+
+            d["name"] = programme_details.get("name")
+            d["description"] = programme_details.get("description")
+            d["identifier"] = programme_details.get("identifier")
+            d["url"] = programme_details.get("url")
+
+            programme = Programme(**d)
+            programmes.append(programme)
+
+        return programmes
+
+    def __str__(self):
+        return f"<Schedule _station={repr(self._station)} _date={repr(self.date)}>"
+
+    def __eq__(self, other):
+        return (
+            self._programmes == other._programmes
+            and self._station == other._station
+            and self._date == other._date
+        )
+
+
 
 
 def main():
