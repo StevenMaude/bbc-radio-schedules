@@ -52,7 +52,7 @@ class Stations:
         return None if url is None else Station(name, url)
 
     @staticmethod
-    def _retrieve(element):
+    def _extract(element):
         """
         Given lxml.HtmlElement, returns an OrderedDict of station name to URL.
 

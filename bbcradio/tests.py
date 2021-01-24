@@ -6,16 +6,16 @@ import bbcradio
 from lxml import html
 
 
-class TestRetrieveStations(unittest.TestCase):
+class TestStations(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = pathlib.Path("fixtures") / "stations.html"
         with open(path, "r") as f:
             page_element = html.fromstring(f.read())
 
-        cls.urls = bbcradio.Stations._retrieve(page_element)
+        cls.urls = bbcradio.Stations._extract(page_element)
 
-    def test_extracted_station_links(self):
+    def test_correct_extracted_links(self):
         # NB: these links are relative as it is the request_url() helper
         # that makes links absolute.
         expected_urls = OrderedDict(
