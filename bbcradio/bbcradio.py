@@ -222,10 +222,29 @@ class Programme:
 def main():
     """ Temporary main function """
     logging.basicConfig(level=logging.DEBUG)
+
     stations = Stations()
-    print(stations.select("BBC Radio 1"))
-    for name, url in stations.urls.items():
-        print(",".join([name, url]))
+    for station_name, station_url in stations.urls.items():
+        print(",".join([station_name, station_url]))
+
+    station = stations.select("BBC Radio 2")
+    schedule = Schedule(station, "2021-01-23")
+    print(f"Schedule for {schedule.station.name} on {schedule.date}")
+
+    for programme in schedule.programmes:
+        details = programme.info
+        print(details["start_date"])
+        print(
+            ",".join(
+                [
+                    details["series_name"],
+                    details["name"],
+                    details["description"],
+                ]
+            )
+        )
+        print(details["url"])
+        print("*")
 
 
 if __name__ == "__main__":
