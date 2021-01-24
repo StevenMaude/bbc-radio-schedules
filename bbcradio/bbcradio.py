@@ -104,6 +104,9 @@ class Station:
     def __repr__(self):
         return f"Station(name={repr(self._name)}, url={repr(self._url)})"
 
+    def __eq__(self, other):
+        return self._name == other._name and self._url == other._url
+
 
 class Schedule:
     pass
