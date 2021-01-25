@@ -180,7 +180,10 @@ class Schedule:
         return programmes
 
     def __str__(self):
-        return f"<Schedule _station={repr(self._station)} _date={repr(self.date)}>"
+        return (
+            "<Schedule "
+            f"_station={repr(self._station)} _date={repr(self._date)}>"
+        )
 
     def __eq__(self, other):
         return (
