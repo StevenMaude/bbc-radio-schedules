@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # encoding: utf-8
 """
 bbcradio.py: Unofficial API client for the BBC Radio schedules.
