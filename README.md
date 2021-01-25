@@ -3,9 +3,9 @@
 API client and example command-line client for processing BBC Radio
 station programme schedules.
 
-# Design notes and thoughts
+## Design notes and thoughts
 
-## Research
+### Research
 
 * Spent about an hour's research looking around the BBC Sounds site:
   * Looked at site pages with browser developer tools and downloaded
@@ -21,31 +21,31 @@ station programme schedules.
   `https://www.bbc.co.uk` site as this is much more representative of an
   actual user-facing web client.
 
-## Requirements
+### Requirements
 
-### Must
+#### Must
  
 * Display BBC radio schedules in Linux terminal.
 * Provide a basic API client.
 * Implement a basic command-line client on that API client.
 * Specify a station to display.
 
-### Should
+#### Should
 
 * Run with currently supported Python (3.6 and up).
 * Have tests.
 * Specify a date to allow other than today to be retrieved.
 
-### Could
+#### Could
 
 * Get the tracklisting of a particular programme.
 * Have pretty output; `rich` python package? Are there others?
 * Integrate into `get_iplayer`; select programme ID from a schedule?
 * Try mypy again?
 
-## Shape of site
+### Shape of site
 
-### Schedules page
+#### Schedules page
 
 There is a [schedules page](https://www.bbc.co.uk/sounds/schedules).
 
@@ -54,7 +54,7 @@ This lists all radio stations available on it. These contain links.
 Doesn't appear to be any other way to access the list of stations. This
 will need querying, but is pretty simple.
 
-### Radio station page
+#### Radio station page
 
 ```python
 requests.get("https://www.bbc.co.uk/schedules/p00fzl86/YYYY/MM/DD")
@@ -62,7 +62,7 @@ requests.get("https://www.bbc.co.uk/schedules/p00fzl86/YYYY/MM/DD")
 
 This page has a schema JSON object we can extract directly.
 
-### From notes on a previous tool I made
+#### From notes on a previous tool I made
 
 You can access tracklistings directly, see [this
 comment](https://github.com/StevenMaude/bbc-radio-tracklisting-downloader/issues/31#issuecomment-500241711).
