@@ -6,15 +6,10 @@ bbcradio.py: Unofficial API client for the BBC Radio schedules.
 import copy
 import datetime
 import json
-import logging
 from collections import OrderedDict
 
 import requests
-import requests_cache
 from lxml import html
-
-# TODO: remove when finished writing code.
-requests_cache.install_cache("dev_cache")
 
 
 def get_htmlelement(url):
@@ -220,35 +215,3 @@ class Programme:
 
     def __eq__(self, other):
         return self._info == other._info
-
-
-def main():
-    """ Temporary main function """
-    logging.basicConfig(level=logging.DEBUG)
-
-    stations = Stations()
-    for station_name, station_url in stations.urls.items():
-        print(",".join([station_name, station_url]))
-
-    station = stations.select("BBC Radio 2")
-    schedule = Schedule(station, "2021-01-23")
-    print(f"Schedule for {schedule.station.name} on {schedule.date}")
-
-    for programme in schedule.programmes:
-        details = programme.info
-        print(details["start_date"])
-        print(
-            ",".join(
-                [
-                    details["series_name"],
-                    details["name"],
-                    details["description"],
-                ]
-            )
-        )
-        print(details["url"])
-        print("*")
-
-
-if __name__ == "__main__":
-    main()
