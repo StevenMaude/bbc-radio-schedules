@@ -9,7 +9,7 @@ from lxml import html
 class TestStations(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = pathlib.Path("fixtures") / "stations.html"
+        path = pathlib.Path("tests") / "fixtures" / "stations.html"
         with open(path, "r") as f:
             page_element = html.fromstring(f.read())
 
@@ -100,7 +100,7 @@ class TestStations(unittest.TestCase):
 class TestSchedule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = pathlib.Path("fixtures") / "schedule.html"
+        path = pathlib.Path("tests") / "fixtures" / "schedule.html"
         with open(path, "r") as f:
             page_element = html.fromstring(f.read())
 
