@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "bbcradio"
+version = "0.1.0"
+description = "Unofficial API for BBC radio station schedules"
+authors = ["Steven Maude <git@stevenmaude.co.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+requests = "^2.25.1"
+lxml = "^4.6.2"
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
