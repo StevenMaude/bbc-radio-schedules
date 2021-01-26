@@ -1,7 +1,15 @@
 # encoding: utf-8
+
 """
-bbcradio.py: Unofficial API client for the BBC Radio schedules.
+bbcradio.api
+------------
+
+This module implements an unofficial API to the BBC's radio station schedules.
+
+Copyright (c) 2021 Steven Maude
+Licensed under the MIT License, see LICENSE.
 """
+
 import copy
 import datetime
 import json
