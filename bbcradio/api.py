@@ -14,6 +14,7 @@ import copy
 import datetime
 import json
 from collections import OrderedDict
+from urllib.parse import urlparse, urlunparse
 
 import requests
 from lxml import html
@@ -27,7 +28,12 @@ def get_htmlelement(url):
     r.raise_for_status()
 
     element = html.fromstring(r.text)
-    element.make_links_absolute("https://www.bbc.co.uk")
+
+    parsed_url = urlparse(url)
+    base_url = urlunparse(
+        parsed_url._replace(path="", params="", query="", fragment="")
+    )
+    element.make_links_absolute(base_url)
     return element
 
 
