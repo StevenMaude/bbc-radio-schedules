@@ -3,6 +3,8 @@
 API client and example command-line client for processing BBC Radio
 station programme schedules.
 
+Code licensed under the [MIT License](LICENSE).
+
 ## Summary of API client
 
 There are four main classes. These are constructed with very little
