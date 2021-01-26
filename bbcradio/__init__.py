@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-"""
-bbcradio
+"""bbcradio
 --------
 
 This is a simple and unofficial API to the BBC's radio station schedules.

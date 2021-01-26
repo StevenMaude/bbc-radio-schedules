@@ -1,7 +1,6 @@
 # encoding: utf-8
 
-"""
-bbcradio.api
+"""bbcradio.api
 ------------
 
 This module implements an unofficial API to the BBC's radio station schedules.
@@ -21,9 +20,16 @@ from lxml import html
 
 
 def get_htmlelement(url):
-    """Given a URL, returns lxml.HtmlElement from HTML response.
+    """Fetches a URL and returns lxml.HtmlElement.
 
-    Helper with timeout for requests."""
+    Helper with timeout for requests.
+
+    Args:
+        url: string, the URL.
+
+    Returns:
+        lxml.HtmlElement representing the requested page.
+    """
     r = requests.get(url, timeout=30)
     r.raise_for_status()
 
@@ -38,31 +44,51 @@ def get_htmlelement(url):
 
 
 class InvalidStationError(Exception):
+    """Raised when an invalid station is selected from Stations."""
+
     pass
 
 
 class Stations:
-    """Represents stations that have available schedules.
+    """Represents a collection of radio stations.
 
-    TODO: detail the attributes and methods.
-
-    _urls: dict of station name to URL
+    Attributes:
+        _stations_url: string, the stations URL.
     """
 
     _stations_url = "https://www.bbc.co.uk/sounds/schedules"
 
     def __init__(self, urls=None):
+        """Inits Stations.
+
+        Attributes:
+            _urls: OrderedDict, mapping a station name as string to URL
+            as string. Defaults to None. Set on first access of urls property.
+        """
         self._urls = urls
 
     @property
     def urls(self):
+        """Property getter for _urls; sets _urls on first access.
+
+        Returns:
+            OrderedDict, mapping a station name as string to URL as string.
+            This is a shallow copy of _urls.
+        """
         if self._urls is None:
             element = get_htmlelement(self._stations_url)
             self._urls = self._extract(element)
         return self._urls.copy()
 
     def select(self, name):
-        """ Returns a Station with the given name, if available, or None. """
+        """Returns a Station with the given name or raises an error.
+
+        Arguments:
+            name: string, the station name.
+
+        Returns:
+            Station.
+        """
         url = self.urls.get(name)
         if url is None:
             raise InvalidStationError(name)
@@ -70,10 +96,16 @@ class Stations:
 
     @staticmethod
     def _extract(element):
-        """
-        Given lxml.HtmlElement, returns an OrderedDict of station name to URL.
+        """Given lxml.HtmlElement, returns OrderedDict of station name to URL.
 
-        Take content from request.
+        Arguments:
+            element: lxml.HtmlElement representing stations page.
+
+        Returns:
+            OrderedDict, station name as string to URL as string.
+
+        Raises:
+            AssertionError: No URLs are found.
         """
         urls = OrderedDict()
 
@@ -100,16 +132,30 @@ class Stations:
 
 
 class Station:
+    """Represents a single radio station."""
+
     def __init__(self, name, url):
+        """Inits Station.
+
+        Args:
+            name: string, the station name.
+            url: string, the station schedule URL.
+
+        Attributes:
+            _name: string, the station name.
+            _url: string, the station schedule URL.
+        """
         self._name = name
         self._url = url
 
     @property
     def name(self):
+        """Property getter for _name."""
         return self._name
 
     @property
     def url(self):
+        """Property getter for .url."""
         return self._url
 
     def __repr__(self):
@@ -120,7 +166,24 @@ class Station:
 
 
 class Schedule:
+    """Represents a radio station schedule."""
+
     def __init__(self, station, date):
+        """Inits Schedule.
+
+        Arguments:
+            station: Station.
+            date: string, ISO8601 date in YYYY-MM-DD format.
+
+        Attributes:
+            _programmes: list of Programme; defaults to None. Set on first
+                access of programmes property.
+            _station: Station.
+            date: string, ISO8601 date in YYYY-MM-DD format.
+
+        Raises:
+            ValueError: date provided was not in YYYY-MM-DD format.
+        """
         self._programmes = None
         self._station = station
 
@@ -134,6 +197,11 @@ class Schedule:
 
     @property
     def programmes(self):
+        """Property getter for _programmes; sets _programmes on first access.
+
+        Returns:
+            list of Programme. This is a deep copy of _programmes.
+        """
         if self._programmes is None:
             element = get_htmlelement(self._construct_url())
             self._programmes = self._extract(element)
@@ -141,17 +209,43 @@ class Schedule:
 
     @property
     def station(self):
+        """Property getter for _station.
+
+        Returns:
+            Station.
+        """
         return self._station
 
     @property
     def date(self):
+        """Property getter for _date.
+
+        Returns:
+            string, ISO8601 date in YYYY-MM-DD format.
+        """
         return self._date
 
     def _construct_url(self):
+        """Returns a full schedule URL including date.
+
+        Returns:
+            string, schedule URL including date.
+        """
         return self._station.url + "/" + self._date.replace("-", "/")
 
     @staticmethod
     def _extract(element):
+        """Returns a list of Programmes for a given schedule HTML page element.
+
+        Arguments:
+            element: lxml.HtmlElement of schedule page
+
+        Returns:
+            list of Programme.
+
+        Raises:
+            AssertionError: no schedule details found in element.
+        """
         schema_xpath = '//script[@type="application/ld+json"]/text()'
         schemas_text = element.xpath(schema_xpath)
 
@@ -202,7 +296,23 @@ class Schedule:
 
 
 class Programme:
+    """Represents a radio programme."""
+
     def __init__(self, **kwargs):
+        """Inits Programme.
+
+        Arguments:
+            **start_date: string, start date/time of programme.
+            **series_name: string, series name of programme.
+            **name: string, name of programme.
+            **description: string, description of programme.
+            **identifier: string, programme identifier.
+            **url: string, URL of programme.
+
+        Attributes:
+            _info: OrderedDict, representing programme information. Constructed
+                by **kwargs; see Arguments.
+        """
         self._info = OrderedDict(
             [
                 ("start_date", None),
@@ -221,6 +331,12 @@ class Programme:
 
     @property
     def info(self):
+        """Property getter for _info.
+
+        Returns:
+            OrderedDict representing programme information. This is a shallow
+            copy of _info.
+        """
         return self._info.copy()
 
     def __repr__(self):
