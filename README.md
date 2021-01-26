@@ -1,7 +1,7 @@
 # bbc-radio-schedules
 
-API client and example command-line client for processing BBC Radio
-station programme schedules.
+Implements an unofficial API client and provides an example command-line
+client for processing BBC Radio station programme schedules.
 
 Code licensed under the [MIT License](LICENSE).
 
