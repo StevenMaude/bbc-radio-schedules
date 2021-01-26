@@ -44,16 +44,16 @@ input, since the data is retrieved from the BBC site.
 
 #### Must
  
-* Display BBC radio schedules in Linux terminal.
-* Provide a basic API client.
+* Display BBC radio schedules in Linux terminal. :heavy_check_mark:
+* Provide a basic API client. :heavy_check_mark:
 * Implement a basic command-line client on that API client.
-* Specify a station to display.
+* Specify a station to display. :heavy_check_mark:
 
 #### Should
 
-* Run with currently supported Python (3.6 and up).
-* Have tests.
-* Specify a date to allow other than today to be retrieved.
+* Run with currently supported Python (3.6 and up). :heavy_check_mark:
+* Have tests. :heavy_check_mark:
+* Specify a date to allow other than today to be retrieved. :heavy_check_mark:
 
 #### Could
 
