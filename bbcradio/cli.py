@@ -59,7 +59,7 @@ def retrieve_schedule(station_name, date):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="bbcradio_example_cli")
+    parser = argparse.ArgumentParser(prog="bbcradio_cli")
     subparsers = parser.add_subparsers(
         dest="subparser_name", help="sub-command help"
     )
