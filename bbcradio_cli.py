@@ -25,9 +25,8 @@ def list_stations():
         None.
     """
     stations = bbcradio.Stations()
-    print("Station name|Station URL")
     for name, url in stations.urls.items():
-        print(f"{name}|{url}")
+        print(f"{name} {url}")
 
 
 def retrieve_schedule(station_name, date):
@@ -53,6 +52,7 @@ def retrieve_schedule(station_name, date):
     print(f"Schedule for {schedule.station.name} on {schedule.date}")
     for programme in schedule.programmes:
         p = programme.info
+        print("*")
         print(p["start_date"])
         print("|".join([p["series_name"], p["name"], p["description"]]))
         print(p["url"])
