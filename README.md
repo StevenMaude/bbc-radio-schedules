@@ -5,7 +5,7 @@ client for processing BBC Radio station programme schedules.
 
 Code licensed under the [MIT License](LICENSE).
 
-## Summary of API client
+## API client
 
 There are four main classes. These are constructed with very little
 input, since the data is retrieved from the BBC site.
@@ -22,28 +22,12 @@ input, since the data is retrieved from the BBC site.
   * Used to store details for a programme; a `Schedule()` contains a
     list of `Programme()`
 
-## Design notes and thoughts
+## CLI client
 
-### Requirements
+Run with `bbcradio_cli.py`:
 
-#### Must
- 
-* Display BBC radio schedules in Linux terminal. :heavy_check_mark:
-* Provide a basic API client. :heavy_check_mark:
-* Implement a basic command-line client on that API client.
-* Specify a station to display. :heavy_check_mark:
-
-#### Should
-
-* Run with currently supported Python (3.6 and up). :heavy_check_mark:
-* Have tests. :heavy_check_mark:
-* Specify a date to allow other than today to be retrieved. :heavy_check_mark:
-
-#### Could
-
-* Get the tracklisting of a particular programme.
-  * You can access tracklistings directly, see [this comment](https://github.com/StevenMaude/bbc-radio-tracklisting-downloader/issues/31#issuecomment-500241711).
-* Have pretty output; `rich` python package? Are there others?
-* Integrate into `get_iplayer`; select programme ID from a schedule?
-* Try mypy again?
-
+```sh
+> bbcradio_cli.py -h # show help
+> bbcradio_cli.py stations # list stations
+> bbcradio_cli.py schedule "BBC Radio 1" "2020-01-27" # display schedule
+```
