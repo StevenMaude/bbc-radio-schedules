@@ -19,30 +19,6 @@ import requests
 from lxml import html
 
 
-def get_htmlelement(url):
-    """Fetches a URL and returns lxml.HtmlElement.
-
-    Helper with timeout for requests.
-
-    Args:
-        url: string, the URL.
-
-    Returns:
-        lxml.HtmlElement representing the requested page.
-    """
-    r = requests.get(url, timeout=30)
-    r.raise_for_status()
-
-    element = html.fromstring(r.text)
-
-    parsed_url = urlparse(url)
-    base_url = urlunparse(
-        parsed_url._replace(path="", params="", query="", fragment="")
-    )
-    element.make_links_absolute(base_url)
-    return element
-
-
 class InvalidStationError(Exception):
     """Raised when an invalid station is selected from Stations."""
 
@@ -353,3 +329,27 @@ class Programme:
 
     def __eq__(self, other):
         return self._info == other._info
+
+
+def get_htmlelement(url):
+    """Fetches a URL and returns lxml.HtmlElement.
+
+    Helper with timeout for requests.
+
+    Args:
+        url: string, the URL.
+
+    Returns:
+        lxml.HtmlElement representing the requested page.
+    """
+    r = requests.get(url, timeout=30)
+    r.raise_for_status()
+
+    element = html.fromstring(r.text)
+
+    parsed_url = urlparse(url)
+    base_url = urlunparse(
+        parsed_url._replace(path="", params="", query="", fragment="")
+    )
+    element.make_links_absolute(base_url)
+    return element
