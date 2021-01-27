@@ -36,3 +36,6 @@ jobs:
     
     - name: Run tests
       run: make test
+
+    - name: Check package installs
+      run: pip install .
