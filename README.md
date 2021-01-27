@@ -1,9 +1,8 @@
-# bbc-radio-schedules
+# bbc-radio-schedules :radio::spiral_notepad:
 
-Implements an unofficial API client and provides an example command-line
-client for processing BBC Radio station programme schedules.
-
-Code licensed under the [MIT License](LICENSE).
+Implements an unofficial API client in Python and provides an example
+command-line client for processing BBC Radio station programme
+schedules.
 
 ## Install
 
@@ -32,12 +31,14 @@ input, since the data is retrieved from the BBC site.
   * Used to store details for a programme; a `Schedule()` contains a
     list of `Programme()`
 
+See the [CLI client](bbcradio/cli.py) for an example.
+
 ## CLI client
 
-Run with `bbcradio_cli.py`:
+After installing the package, run with `bbcradio_cli`:
 
 ```sh
-> bbcradio_cli.py -h # show help
-> bbcradio_cli.py stations # list stations
-> bbcradio_cli.py schedule "BBC Radio 1" "2020-01-27" # display schedule
+> bbcradio_cli -h # show help
+> bbcradio_cli stations # list stations
+> bbcradio_cli schedule "BBC Radio 1" "2020-01-27" # display schedule
 ```
