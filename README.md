@@ -5,7 +5,7 @@ client for processing BBC Radio station programme schedules.
 
 Code licensed under the [MIT License](LICENSE).
 
-## Summary of API client
+## API client
 
 There are four main classes. These are constructed with very little
 input, since the data is retrieved from the BBC site.
@@ -22,6 +22,16 @@ input, since the data is retrieved from the BBC site.
   * Used to store details for a programme; a `Schedule()` contains a
     list of `Programme()`
 
+## CLI client
+
+Run with `bbcradio_cli.py`:
+
+```sh
+> bbcradio_cli.py -h # show help
+> bbcradio_cli.py stations # list stations
+> bbcradio_cli.py schedule "BBC Radio 1" "2020-01-27" # display schedule
+```
+
 ## Design notes and thoughts
 
 ### Requirements
@@ -30,7 +40,7 @@ input, since the data is retrieved from the BBC site.
  
 * Display BBC radio schedules in Linux terminal. :heavy_check_mark:
 * Provide a basic API client. :heavy_check_mark:
-* Implement a basic command-line client on that API client.
+* Implement a basic command-line client on that API client. :heavy_check_mark:
 * Specify a station to display. :heavy_check_mark:
 
 #### Should
