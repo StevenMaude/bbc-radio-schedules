@@ -5,6 +5,16 @@ client for processing BBC Radio station programme schedules.
 
 Code licensed under the [MIT License](LICENSE).
 
+## Install
+
+Install with `pip` or `poetry`, e.g.
+
+```
+pip install git+https://github.com/StevenMaude/bbc-radio-schedules
+```
+
+(or use `pip install git+git`… in the command above).
+
 ## API client
 
 There are four main classes. These are constructed with very little
