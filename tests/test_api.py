@@ -359,7 +359,9 @@ class TestSchedule(unittest.TestCase):
         station = bbcradio.Station(
             "BBC Unittest Station", "https://example.com/unittest"
         )
-        self.assertRaises(ValueError, bbcradio.Schedule, station, "not-a-date")
+        self.assertRaises(
+            bbcradio.InvalidDateError, bbcradio.Schedule, station, "not-a-date"
+        )
 
 
 class TestProgramme(unittest.TestCase):

@@ -9,4 +9,11 @@ Copyright (c) 2021 Steven Maude
 Licensed under the MIT License, see LICENSE.
 """
 
-from .api import InvalidStationError, Stations, Station, Schedule, Programme
+from .api import (
+    InvalidStationError,
+    InvalidDateError,
+    Stations,
+    Station,
+    Schedule,
+    Programme,
+)

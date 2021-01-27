@@ -49,6 +49,12 @@ class InvalidStationError(Exception):
     pass
 
 
+class InvalidDateError(Exception):
+    """Raised if a supplied date is not YYYY-MM-DD format."""
+
+    pass
+
+
 class Stations:
     """Represents a collection of radio stations.
 
@@ -190,7 +196,10 @@ class Schedule:
         # Validate that this is a valid YYYY-MM-DD string.
         # Explicitly require a date, even though the station URL without a date
         # gives you the current day.
-        datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        try:
+            datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        except ValueError:
+            raise InvalidDateError(f"invalid date: {date}")
         # This date corresponds to the schedule date and may contain some
         # programmes outside of that date.
         self._date = date
