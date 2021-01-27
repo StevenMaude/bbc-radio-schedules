@@ -39,3 +39,6 @@ jobs:
 
     - name: Check package installs
       run: pip install .
+
+    - name: Check output
+      run: test "$(bbcradio_cli stations | wc -l)" = "57"
