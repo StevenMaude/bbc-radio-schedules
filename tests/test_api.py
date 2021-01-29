@@ -16,7 +16,7 @@ class TestStations(unittest.TestCase):
         cls.urls = bbcradio.Stations._extract(page_element)
 
     def test_correct_extracted_links(self):
-        # NB: these links are relative as it is the request_url() helper
+        # NB: these links are relative as it is the get_htmlelement() helper
         # that makes links absolute.
         expected_urls = OrderedDict(
             [

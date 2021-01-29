@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 """
-bbcradio example_cli
---------------------
+bbcradio.cli
+------------
 This module implements a CLI using the unofficial bbcradio API.
 
 Copyright (c) 2021 Steven Maude
@@ -75,7 +75,6 @@ def main():
     schedule_parser.add_argument(
         "date", help="date in YYYY-MM-DD format", type=str
     )
-    schedule_parser.set_defaults(func=retrieve_schedule)
 
     args = parser.parse_args()
 
