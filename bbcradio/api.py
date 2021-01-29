@@ -238,10 +238,8 @@ class Schedule:
             schedule_details = json.loads(schema_text)
             if schedule_details.get("@graph") is not None:
                 break
-            else:
-                schedule_details = None
-
-        assert schedule_details is not None
+        else:
+            raise ValueError("schedule details not found in HTML element")
 
         programmes = []
 
