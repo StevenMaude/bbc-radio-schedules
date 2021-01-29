@@ -75,7 +75,6 @@ def main():
     schedule_parser.add_argument(
         "date", help="date in YYYY-MM-DD format", type=str
     )
-    schedule_parser.set_defaults(func=retrieve_schedule)
 
     args = parser.parse_args()
 
