@@ -45,7 +45,7 @@ def retrieve_schedule(station_name, date):
     schedule = bbcradio.Schedule(station, date)
     try:
         schedule.programmes
-    except requests.exceptions.HTTPError:
+    except (requests.exceptions.HTTPError, ValueError):
         print(f"Unable to retrieve schedule for {station_name} on {date}.")
         sys.exit(1)
 
