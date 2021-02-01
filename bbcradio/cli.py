@@ -54,7 +54,15 @@ def retrieve_schedule(station_name, date):
         p = programme.info
         print("*")
         print(p["start_date"])
-        print("|".join([p["series_name"], p["name"], p["description"]]))
+        print(
+            "|".join(
+                [
+                    p["series_name"] or "<No series name found>",
+                    p["name"] or "<No programme name found>",
+                    p["description"] or "<No programme description found>",
+                ]
+            )
+        )
         print(p["url"])
 
 

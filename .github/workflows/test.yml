@@ -42,3 +42,6 @@ jobs:
 
     - name: Check output
       run: test "$(bbcradio_cli stations | wc -l)" = "57"
+
+    - name: Check data retrieval
+      run: test "$(bbcradio_cli schedule 'BBC Radio 2' '2021-01-30' | wc -l)" = "77"
