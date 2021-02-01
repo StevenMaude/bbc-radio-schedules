@@ -64,7 +64,7 @@ def main():
         dest="subparser_name", help="sub-command help"
     )
 
-    stations_parser = subparsers.add_parser("stations", help="list stations")
+    subparsers.add_parser("stations", help="list stations")
 
     schedule_parser = subparsers.add_parser(
         "schedule", help="retrieve a schedule"
