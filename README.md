@@ -1,44 +1,55 @@
 # bbc-radio-schedules :radio::spiral_notepad:
 
-Implements an unofficial API client in Python and provides an example
-command-line client for processing BBC Radio station programme
-schedules.
+An unofficial Python client and CLI for BBC radio station schedules.
+
+## Requirements
+
+- Python 3.11 or newer
+- [uv](https://docs.astral.sh/uv/) for development workflows
 
 ## Install
 
-Install with `pip` or `poetry`, e.g.
+Install the package with `pip`:
 
-```
+```sh
 pip install git+https://github.com/StevenMaude/bbc-radio-schedules
 ```
 
-(or use `pip install git+git`… in the command above).
+For local development, create an environment and install the project with `uv`:
+
+```sh
+uv sync
+```
 
 ## API client
 
-There are four main classes. These are constructed with very little
-input, since the data is retrieved from the BBC site.
+There are four main classes:
 
-* `Stations`
-  * Construct via `bbcradio.Stations()`.
-* `Station`
-  * The `Stations()` `.select()` method constructs a `Station()`, by
-    passing in the name of a station found in `Stations()`.
-* `Schedule`
-  * Construct via `bbcradio.Schedule()`, passing in a `Station()` and a
-    date as a string in the "YYYY-MM-DD" format.
-* `Programme`
-  * Used to store details for a programme; a `Schedule()` contains a
-    list of `Programme()`
+- `bbcradio.Stations()` retrieves the available stations.
+- `Stations.select(name)` returns a `bbcradio.Station`.
+- `bbcradio.Schedule(station, "YYYY-MM-DD")` retrieves a schedule.
+- `bbcradio.Programme` stores details for an individual programme.
 
-See the [CLI client](bbcradio/cli.py) for an example.
+See the [CLI client](bbcradio/cli.py) for a complete example.
 
 ## CLI client
 
-After installing the package, run with `bbcradio_cli`:
+After installing the package, run:
 
 ```sh
-> bbcradio_cli -h # show help
-> bbcradio_cli stations # list stations
-> bbcradio_cli schedule "BBC Radio 1" "2020-01-27" # display schedule
+bbcradio_cli -h
+bbcradio_cli stations
+bbcradio_cli schedule "BBC Radio 1" "2026-05-19"
 ```
+
+## Development
+
+Run the checks with `uv`:
+
+```sh
+uv run black --check .
+uv run python -m unittest discover tests
+```
+
+The test suite includes a live BBC integration test. It automatically skips
+when the BBC site is unavailable from the current environment.

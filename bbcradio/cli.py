@@ -39,18 +39,22 @@ def retrieve_schedule(station_name, date):
     Returns:
         None.
     """
-    stations = bbcradio.Stations()
-    station = stations.select(station_name)
-
-    schedule = bbcradio.Schedule(station, date)
     try:
-        schedule.programmes
-    except (requests.exceptions.HTTPError, ValueError):
+        stations = bbcradio.Stations()
+        station = stations.select(station_name)
+        schedule = bbcradio.Schedule(station, date)
+        programmes = schedule.programmes
+    except (
+        bbcradio.InvalidDateError,
+        bbcradio.InvalidStationError,
+        requests.exceptions.RequestException,
+        ValueError,
+    ):
         print(f"Unable to retrieve schedule for {station_name} on {date}.")
         sys.exit(1)
 
     print(f"Schedule for {schedule.station.name} on {schedule.date}")
-    for programme in schedule.programmes:
+    for programme in programmes:
         p = programme.info
         print("*")
         print(p["start_date"])
@@ -69,7 +73,7 @@ def retrieve_schedule(station_name, date):
 def main():
     parser = argparse.ArgumentParser(prog="bbcradio_cli")
     subparsers = parser.add_subparsers(
-        dest="subparser_name", help="sub-command help"
+        dest="subparser_name", help="sub-command help", required=True
     )
 
     subparsers.add_parser("stations", help="list stations")

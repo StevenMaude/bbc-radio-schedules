@@ -3,21 +3,18 @@ import unittest
 from collections import OrderedDict
 
 import bbcradio
-from lxml import html
+
+
+FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
 
 class TestStations(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = pathlib.Path("tests") / "fixtures" / "stations.html"
-        with open(path, "r") as f:
-            page_element = html.fromstring(f.read())
-
-        cls.urls = bbcradio.Stations._extract(page_element)
+        cls.stations_document = (FIXTURES_DIR / "stations.html").read_text()
+        cls.urls = bbcradio.Stations._extract(cls.stations_document)
 
     def test_correct_extracted_links(self):
-        # NB: these links are relative as it is the get_htmlelement() helper
-        # that makes links absolute.
         expected_urls = OrderedDict(
             [
                 ("BBC Radio 1", "/schedules/p00fzl86"),
@@ -81,6 +78,36 @@ class TestStations(unittest.TestCase):
         )
         self.assertEqual(expected_urls, self.urls)
 
+    def test_extracts_modern_schedule_links(self):
+        stations_document = """
+        <html>
+          <body>
+            <a href="/sounds/schedules">All stations</a>
+            <a href="/sounds/schedules/bbc_radio_one">
+              <span>BBC Radio 1</span>
+            </a>
+            <a href="https://www.bbc.co.uk/sounds/schedules/bbc_radio_two">
+              <img alt="BBC Radio 2" src="/radio2.png" />
+            </a>
+          </body>
+        </html>
+        """
+
+        urls = bbcradio.Stations._extract(stations_document)
+
+        self.assertEqual(
+            OrderedDict(
+                [
+                    ("BBC Radio 1", "/sounds/schedules/bbc_radio_one"),
+                    (
+                        "BBC Radio 2",
+                        "https://www.bbc.co.uk/sounds/schedules/bbc_radio_two",
+                    ),
+                ]
+            ),
+            urls,
+        )
+
     def test_correct_select(self):
         stations = bbcradio.Stations(self.urls)
         station = stations.select("BBC Radio 1")
@@ -100,21 +127,31 @@ class TestStations(unittest.TestCase):
 class TestSchedule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        path = pathlib.Path("tests") / "fixtures" / "schedule.html"
-        with open(path, "r") as f:
-            page_element = html.fromstring(f.read())
-
-        cls.programmes = bbcradio.Schedule._extract(page_element)
+        cls.schedule_document = (FIXTURES_DIR / "schedule.html").read_text()
+        cls.programmes = bbcradio.Schedule._extract(cls.schedule_document)
 
     def test_construct_url(self):
         station = bbcradio.Station(
             "BBC Unittest Station", "https://example.com/unittest"
         )
-        test_date = "2021-01-24"
-        schedule = bbcradio.Schedule(station, test_date)
+        schedule = bbcradio.Schedule(station, "2021-01-24")
         self.assertEqual(
             "https://example.com/unittest/2021/01/24",
             schedule._construct_url(),
+        )
+
+    def test_construct_urls(self):
+        station = bbcradio.Station(
+            "BBC Unittest Station", "https://example.com/unittest"
+        )
+        schedule = bbcradio.Schedule(station, "2021-01-24")
+
+        self.assertEqual(
+            [
+                "https://example.com/unittest/2021/01/24",
+                "https://example.com/unittest/2021-01-24",
+            ],
+            schedule._construct_urls(),
         )
 
     def test_correct_extracted_programmes(self):
@@ -344,6 +381,66 @@ class TestSchedule(unittest.TestCase):
 
         self.assertEqual(expected_programmes, self.programmes)
 
+    def test_extracts_broadcast_event_schema(self):
+        schedule_document = """
+        <html>
+          <body>
+            <script type="application/ld+json">
+              {
+                "@graph": [
+                  {
+                    "@type": "BroadcastEvent",
+                    "startDate": "2026-05-19T10:00:00+00:00",
+                    "workPresented": {
+                      "@type": "RadioEpisode",
+                      "name": "Morning Show",
+                      "description": "Wake up with music and guests.",
+                      "url": "/programmes/m001abcd",
+                      "partOfSeries": {"name": "Breakfast"}
+                    }
+                  },
+                  {
+                    "@type": "BroadcastEvent",
+                    "publication": {"startDate": "2026-05-19T11:00:00+00:00"},
+                    "item": {
+                      "name": "News Hour",
+                      "description": "The latest national and international stories.",
+                      "pid": "m001abce",
+                      "sameAs": "https://www.bbc.co.uk/programmes/m001abce",
+                      "isPartOf": {"name": "BBC Radio News"}
+                    }
+                  }
+                ]
+              }
+            </script>
+          </body>
+        </html>
+        """
+
+        programmes = bbcradio.Schedule._extract(schedule_document)
+
+        self.assertEqual(
+            [
+                bbcradio.Programme(
+                    start_date="2026-05-19T10:00:00+00:00",
+                    series_name="Breakfast",
+                    name="Morning Show",
+                    description="Wake up with music and guests.",
+                    identifier="m001abcd",
+                    url="https://www.bbc.co.uk/programmes/m001abcd",
+                ),
+                bbcradio.Programme(
+                    start_date="2026-05-19T11:00:00+00:00",
+                    series_name="BBC Radio News",
+                    name="News Hour",
+                    description="The latest national and international stories.",
+                    identifier="m001abce",
+                    url="https://www.bbc.co.uk/programmes/m001abce",
+                ),
+            ],
+            programmes,
+        )
+
     def test_create_with_valid_date(self):
         station = bbcradio.Station(
             "BBC Unittest Station", "https://example.com/unittest"
@@ -352,7 +449,7 @@ class TestSchedule(unittest.TestCase):
         schedule = bbcradio.Schedule(station, test_date)
         self.assertEqual("BBC Unittest Station", schedule.station.name)
         self.assertEqual("https://example.com/unittest", schedule.station.url)
-        self.assertIsNone(schedule._programmes)  # Avoid really computing.
+        self.assertIsNone(schedule._programmes)
         self.assertEqual(test_date, schedule.date)
 
     def test_create_with_invalid_date(self):
