@@ -6,13 +6,17 @@ schedules.
 
 ## Install
 
-Install with `pip` or `poetry`, e.g.
+Install with `pip` or `uv`, e.g.
 
 ```
 pip install git+https://github.com/StevenMaude/bbc-radio-schedules
 ```
 
-(or use `pip install git+git`… in the command above).
+Or using `uv`:
+
+```
+uv add git+https://github.com/StevenMaude/bbc-radio-schedules
+```
 
 ## API client
 
@@ -40,5 +44,16 @@ After installing the package, run with `bbcradio_cli`:
 ```sh
 > bbcradio_cli -h # show help
 > bbcradio_cli stations # list stations
-> bbcradio_cli schedule "BBC Radio 1" "2020-01-27" # display schedule
+> bbcradio_cli schedule "Radio 1" "2026-01-27" # display schedule
+```
+
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency
+management.
+
+```sh
+uv sync              # install dependencies
+make test            # run unit tests (uses fixtures, no network)
+make functional-test # run tests against the live BBC website
 ```
