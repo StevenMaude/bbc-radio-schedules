@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-# encoding: utf-8
-"""
-bbcradio.cli
+"""bbcradio.cli
 ------------
 This module implements a CLI using the unofficial bbcradio API.
 

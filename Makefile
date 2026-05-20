@@ -1,4 +1,7 @@
 test:
-	python3 -m unittest discover tests/
+python3 -m pytest tests/test_api.py -v
 
-.PHONY: test
+functional-test:
+python3 -m pytest tests/test_functional.py -v
+
+.PHONY: test functional-test

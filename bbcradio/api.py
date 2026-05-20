@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 """bbcradio.api
 ------------
 
@@ -12,7 +10,6 @@ Licensed under the MIT License, see LICENSE.
 import copy
 import datetime
 import json
-from collections import OrderedDict
 from urllib.parse import urlparse, urlunparse
 
 import requests
@@ -44,8 +41,9 @@ class Stations:
         """Inits Stations.
 
         Attributes:
-            _urls: OrderedDict, mapping a station name as string to URL
-            as string. Defaults to None. Set on first access of urls property.
+            _urls: dict, mapping a station name as string to URL as
+            string. Defaults to None. Set on first access of urls
+            property.
         """
         self._urls = urls
 
@@ -54,7 +52,7 @@ class Stations:
         """Property getter for _urls; sets _urls on first access.
 
         Returns:
-            OrderedDict, mapping a station name as string to URL as string.
+            dict, mapping a station name as string to URL as string.
             This is a shallow copy of _urls.
         """
         if self._urls is None:
@@ -78,30 +76,32 @@ class Stations:
 
     @staticmethod
     def _extract(element):
-        """Given lxml.HtmlElement, returns OrderedDict of station name to URL.
+        """Given lxml.HtmlElement, returns dict of station name to URL.
 
         Arguments:
             element: lxml.HtmlElement representing stations page.
 
         Returns:
-            OrderedDict, station name as string to URL as string.
+            dict, station name as string to URL as string.
 
         Raises:
             AssertionError: No URLs are found.
         """
-        urls = OrderedDict()
+        urls = {}
 
-        national_xpath = "//img[@class='station-logo']"
-        for elem in element.xpath(national_xpath):
-            (station_name,) = elem.xpath("./@alt")
-            (url,) = elem.xpath("../@href")
-            urls[station_name] = url
-
-        regional_xpath = "//div[@class='local-stations']//li/a"
-        for elem in element.xpath(regional_xpath):
-            (station_name,) = elem.xpath("./text()")
-            (url,) = elem.xpath("./@href")
-            urls[station_name] = url
+        # Each station has a "View {name} schedule" link with the schedule URL.
+        schedule_xpath = (
+            "//a[contains(@href, '/sounds/schedules/') "
+            "and starts-with(@aria-label, 'View ') "
+            "and substring(@aria-label, string-length(@aria-label) - 8) = ' schedule']"
+        )
+        for elem in element.xpath(schedule_xpath):
+            aria_label = elem.get("aria-label", "")
+            # aria-label format: "View {station name} schedule"
+            station_name = aria_label[5:-9]  # strip "View " prefix and " schedule" suffix
+            url = elem.get("href")
+            if station_name and url:
+                urls[station_name] = url
 
         assert len(urls) > 0
         return urls
@@ -158,8 +158,8 @@ class Schedule:
             date: string, ISO8601 date in YYYY-MM-DD format.
 
         Attributes:
-            _programmes: list of Programme; defaults to None. Set on first
-                access of programmes property.
+            _programmes: list of Programme; defaults to None. Set on
+                first access of programmes property.
             _station: Station.
             date: string, ISO8601 date in YYYY-MM-DD format.
 
@@ -216,7 +216,7 @@ class Schedule:
         Returns:
             string, schedule URL including date.
         """
-        return self._station.url + "/" + self._date.replace("-", "/")
+        return self._station.url + "/" + self._date
 
     @staticmethod
     def _extract(element):
@@ -229,35 +229,65 @@ class Schedule:
             list of Programme.
 
         Raises:
-            AssertionError: no schedule details found in element.
+            ValueError: no schedule details found in element.
         """
-        schema_xpath = '//script[@type="application/ld+json"]/text()'
-        schemas_text = element.xpath(schema_xpath)
+        # The BBC Sounds site uses Next.js and embeds page data in a
+        # <script id="__NEXT_DATA__" type="application/json"> tag.
+        next_data_xpath = '//script[@id="__NEXT_DATA__"]/text()'
+        next_data_texts = element.xpath(next_data_xpath)
 
-        for schema_text in schemas_text:
-            schedule_details = json.loads(schema_text)
-            if schedule_details.get("@graph") is not None:
-                break
-        else:
+        if not next_data_texts:
+            raise ValueError("schedule details not found in HTML element")
+
+        page_data = json.loads(next_data_texts[0])
+
+        try:
+            queries = page_data["props"]["pageProps"]["dehydratedState"][
+                "queries"
+            ]
+            # Find the query whose data contains the schedule_items module
+            schedule_items = None
+            for query in queries:
+                data_items = query["state"]["data"].get("data", [])
+                for item in data_items:
+                    if item.get("id") == "schedule_items":
+                        schedule_items = item.get("data", [])
+                        break
+                if schedule_items is not None:
+                    break
+        except (KeyError, TypeError):
+            raise ValueError("schedule details not found in HTML element")
+
+        if schedule_items is None:
             raise ValueError("schedule details not found in HTML element")
 
         programmes = []
 
-        for programme_details in schedule_details["@graph"]:
+        for broadcast in schedule_items:
             d = {}
 
-            publication = programme_details.get("publication")
-            if publication is not None:
-                d["start_date"] = publication.get("startDate")
+            d["start_date"] = broadcast.get("start")
 
-            series_details = programme_details.get("partOfSeries")
-            if series_details is not None:
-                d["series_name"] = series_details.get("name")
+            container = broadcast.get("container")
+            if container:
+                d["series_name"] = container.get("title")
 
-            d["name"] = programme_details.get("name")
-            d["description"] = programme_details.get("description")
-            d["identifier"] = programme_details.get("identifier")
-            d["url"] = programme_details.get("url")
+            titles = broadcast.get("titles", {})
+            d["name"] = titles.get("secondary") or titles.get("primary")
+
+            synopses = broadcast.get("synopses", {})
+            d["description"] = (
+                synopses.get("long")
+                or synopses.get("medium")
+                or synopses.get("short")
+            )
+
+            playable_item = broadcast.get("playable_item", {})
+            if playable_item:
+                pid = playable_item.get("id")
+                d["identifier"] = pid
+                if pid:
+                    d["url"] = f"https://www.bbc.co.uk/sounds/play/{pid}"
 
             programme = Programme(**d)
             programmes.append(programme)
@@ -293,19 +323,17 @@ class Programme:
             **url: string, URL of programme.
 
         Attributes:
-            _info: OrderedDict, representing programme information. Constructed
+            _info: dict, representing programme information. Constructed
                 by **kwargs; see Arguments.
         """
-        self._info = OrderedDict(
-            [
-                ("start_date", None),
-                ("series_name", None),
-                ("name", None),
-                ("description", None),
-                ("identifier", None),
-                ("url", None),
-            ],
-        )
+        self._info = {
+            "start_date": None,
+            "series_name": None,
+            "name": None,
+            "description": None,
+            "identifier": None,
+            "url": None,
+        }
 
         for k in self._info:
             kwargs_value = kwargs.get(k)
@@ -317,7 +345,7 @@ class Programme:
         """Property getter for _info.
 
         Returns:
-            OrderedDict representing programme information. This is a shallow
+            dict representing programme information. This is a shallow
             copy of _info.
         """
         return self._info.copy()
