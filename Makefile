@@ -1,4 +1,7 @@
 test:
-	python3 -m unittest discover tests/
+	uv run python -m unittest discover tests
 
-.PHONY: test
+format-check:
+	uv run black --check .
+
+.PHONY: format-check test
