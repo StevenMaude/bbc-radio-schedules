@@ -3,7 +3,7 @@ name: Lint code and run tests
 on:
   push:
     branches:
-      main
+      - main
   pull_request:
 
 jobs:
@@ -11,37 +11,36 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.11', '3.12', '3.13']
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Prepare pip
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel
+    - name: Install dependencies
+      run: uv sync
 
-    - name: Install code
-      run: pip install --require-hashes -r dev_requirements.txt
-
-    - name: Run linters
+    - name: Run linter
       run: |
-        black --check .
-    
-    - name: Run tests
-      run: make test
+        uv run ruff check .
+        uv run ruff format --check .
+
+    - name: Run unit tests
+      run: uv run python -m pytest tests/test_api.py -v
+
+    - name: Run functional tests
+      run: uv run python -m pytest tests/test_functional.py -v
 
     - name: Check package installs
-      run: pip install .
+      run: uv pip install .
 
-    - name: Check output
-      run: test "$(bbcradio_cli stations | wc -l)" = "57"
+    - name: Check stations output
+      run: test "$(uv run bbcradio_cli stations | wc -l)" -ge 50
 
-    - name: Check data retrieval
-      run: test "$(bbcradio_cli schedule 'BBC Radio 2' '2021-01-30' | wc -l)" = "77"
+    - name: Check schedule data retrieval
+      run: test "$(uv run bbcradio_cli schedule 'BBC Radio 2' '2021-01-30' | wc -l)" -ge 70

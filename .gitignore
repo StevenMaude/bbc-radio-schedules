@@ -1,7 +1,16 @@
 # Python
 __pycache__/
-pip-wheel-metadata/
 *.egg-info/
+dist/
+build/
 
-# Vim
+# Virtual environments
+.venv/
+
+# uv
+uv.lock
+
+# Editors
 *.swp
+.idea/
+.vscode/

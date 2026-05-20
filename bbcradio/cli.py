@@ -1,56 +1,46 @@
-#!/usr/bin/env python3
-# encoding: utf-8
-"""
-bbcradio.cli
+"""bbcradio.cli
 ------------
+
 This module implements a CLI using the unofficial bbcradio API.
 
 Copyright (c) 2021 Steven Maude
 Licensed under the MIT License, see LICENSE.
 """
+
 import argparse
 import sys
 
-import bbcradio
 import requests
 
+import bbcradio
 
-def list_stations():
-    """Retrieves a list of radio stations and prints them.
 
-    Arguments:
-        None.
-
-    Returns:
-        None.
-    """
+def list_stations() -> None:
+    """Retrieve a list of radio stations and print them."""
     stations = bbcradio.Stations()
     for name, url in stations.urls.items():
         print(f"{name} {url}")
 
 
-def retrieve_schedule(station_name, date):
-    """Retrieves and prints a schedule for a station on a given date.
+def retrieve_schedule(station_name: str, date: str) -> None:
+    """Retrieve and print a schedule for a station on a given date.
 
     Arguments:
-        station_name: string, radio station name.
-        date: string, date in YYYY-MM-DD format.
-
-    Returns:
-        None.
+        station_name: Radio station name.
+        date: Date in YYYY-MM-DD format.
     """
     stations = bbcradio.Stations()
     station = stations.select(station_name)
 
     schedule = bbcradio.Schedule(station, date)
     try:
-        schedule.programmes
+        programmes = schedule.programmes
     except (requests.exceptions.HTTPError, ValueError):
         print(f"Unable to retrieve schedule for {station_name} on {date}.")
         sys.exit(1)
 
     print(f"Schedule for {schedule.station.name} on {schedule.date}")
-    for programme in schedule.programmes:
+    for programme in programmes:
         p = programme.info
         print("*")
         print(p["start_date"])
@@ -66,7 +56,8 @@ def retrieve_schedule(station_name, date):
         print(p["url"])
 
 
-def main():
+def main() -> None:
+    """Entry point for the bbcradio_cli command."""
     parser = argparse.ArgumentParser(prog="bbcradio_cli")
     subparsers = parser.add_subparsers(
         dest="subparser_name", help="sub-command help"

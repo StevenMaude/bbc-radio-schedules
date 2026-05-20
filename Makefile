@@ -1,4 +1,14 @@
 test:
-	python3 -m unittest discover tests/
+uv run python -m pytest tests/
 
-.PHONY: test
+test-unit:
+uv run python -m pytest tests/test_api.py
+
+test-functional:
+uv run python -m pytest tests/test_functional.py
+
+lint:
+uv run ruff check .
+uv run ruff format --check .
+
+.PHONY: test test-unit test-functional lint
