@@ -1,4 +1,7 @@
-test:
-	python3 -m unittest discover tests/
+format:
+	uv run --python 3.13 black bbcradio tests
 
-.PHONY: test
+test:
+	uv run python -m unittest discover tests/
+
+.PHONY: format test
